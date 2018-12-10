@@ -1,4 +1,4 @@
-// feplayd.go to read in config, e.g. listen port and then do GET and POST/PUT
+// replayd.go to read in config, e.g. listen port and then do GET and POST/PUT
 
 package main
 
