@@ -1,0 +1,140 @@
+# build , run with -race
+
+PS D:\Go-workspace\walter\replayd2> go build -race replayd.go
+
+PS D:\Go-workspace\walter\replayd2> go run -race replayd.go
+App Mode: development
+Tmp Data Path: D:\Go-workspace\walter\replayd\tmp
+Server Protocol: http
+Email Protocol: smtp
+Port Number: 8081
+Enforce Domain: (bool) true
+Debug Level: normal
+
+# test GET 
+
+Windows PowerShell
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+PS D:\Go-workspace\walter\replayd2> curl
+
+cmdlet Invoke-WebRequest at command pipeline position 1
+Supply values for the following parameters:
+Uri: http://localhost:8081
+
+
+StatusCode        : 200
+StatusDescription : OK
+Content           : [{"id":"1","firstname":"Walter","lastname":"Lee","address":{"city":"San Francisco","state":"CA"}}]
+
+RawContent        : HTTP/1.1 200 OK
+                    Content-Length: 99
+                    Content-Type: text/plain; charset=utf-8
+                    Date: Mon, 10 Dec 2018 05:30:55 GMT
+
+                    [{"id":"1","firstname":"Walter","lastname":"Lee","address":{"city":"San Francisco",...
+Forms             : {}
+Headers           : {[Content-Length, 99], [Content-Type, text/plain; charset=utf-8], [Date, Mon, 10 Dec 2018 05:30:55 GMT]}
+Images            : {}
+InputFields       : {}
+Links             : {}
+ParsedHtml        : mshtml.HTMLDocumentClass
+RawContentLength  : 99
+
+# test POST 
+
+D:\Go-workspace>curl -i -X POST -H "Content-Type:application/json" -d "{\"firstname\":\"Johnny\",\"lastname\":\"Deepe\",\"address\":{\"city\":\"LA\",\"state\":\"CA\"}}" http://localhost:8081/
+HTTP/1.1 200 OK
+Date: Mon, 10 Dec 2018 05:45:30 GMT
+Content-Length: 81
+Content-Type: text/plain; charset=utf-8
+
+[{"firstname":"Johnny","lastname":"Deepe","address":{"city":"LA","state":"CA"}}]
+
+then GET
+D:\Go-workspace>curl http://localhost:8081/
+[{"firstname":"Johnny","lastname":"Deepe","address":{"city":"LA","state":"CA"}}]
+
+# test PUT
+
+D:\Go-workspace>curl -i -X PUT -H "Content-Type:application/json" -d "{\"firstname\":\"Nicole\",\"lastname\":\"Kiddman\",\"address\":{\"city\":\"LA\",\"state\":\"CA\"}}" http://localhost:8081/
+HTTP/1.1 200 OK
+Date: Mon, 10 Dec 2018 05:48:02 GMT
+Content-Length: 83
+Content-Type: text/plain; charset=utf-8
+
+[{"firstname":"Nicole","lastname":"Kiddman","address":{"city":"LA","state":"CA"}}]
+
+D:\Go-workspace>curl http://localhost:8081/
+[{"firstname":"Nicole","lastname":"Kiddman","address":{"city":"LA","state":"CA"}}]
+
+# test with wrk tool
+
+D:\Go-workspace>cd D:\Go-workspace\walter\go-wrk
+
+D:\Go-workspace\walter\go-wrk>go build
+
+# 1st is GET 
+
+D:\Go-workspace\walter\go-wrk>go-wrk -c=40 -t=5 -n=400 http://localhost:8081/
+==========================BENCHMARK==========================
+URL:                            http://localhost:8081/
+
+Used Connections:               40
+Used Threads:                   5
+Total number of calls:          400
+
+===========================TIMINGS===========================
+Total time passed:              0.41s
+Avg time per request:           39.42ms
+Requests per second:            977.74
+Median time per request:        12.97ms
+99th percentile time:           281.44ms
+Slowest time for request:       282.00ms
+
+=============================DATA=============================
+Total response body sizes:              33200
+Avg response body per request:          83.00 Byte
+Transfer rate per second:               81152.76 Byte/s (0.08 MByte/s)
+==========================RESPONSES==========================
+20X Responses:          400     (100.00%)
+30X Responses:          0       (0.00%)
+40X Responses:          0       (0.00%)
+50X Responses:          0       (0.00%)
+Errors:                 0       (0.00%)
+
+# then POST
+
+D:\Go-workspace\walter\go-wrk>go-wrk -H "Content-Type: application/json" -c=40 -m="POST"  -t=4 -n=400 -b="{\"firstname\":\"Tom\",\"lastname\":\"Hanks\",\"address\":{\"city\":\"LA\",\"state\":\"CA\"}}" http://localhost:8081
+==========================BENCHMARK==========================
+URL:                            http://localhost:8081
+
+Used Connections:               40
+Used Threads:                   4
+Total number of calls:          400
+
+===========================TIMINGS===========================
+Total time passed:              0.19s
+Avg time per request:           16.78ms
+Requests per second:            2133.36
+Median time per request:        14.96ms
+99th percentile time:           32.91ms
+Slowest time for request:       36.00ms
+
+=============================DATA=============================
+Total response body sizes:              31200
+Avg response body per request:          78.00 Byte
+Transfer rate per second:               166401.77 Byte/s (0.17 MByte/s)
+==========================RESPONSES==========================
+20X Responses:          400     (100.00%)
+30X Responses:          0       (0.00%)
+40X Responses:          0       (0.00%)
+50X Responses:          0       (0.00%)
+Errors:                 0       (0.00%)
+
+D:\Go-workspace\walter\go-wrk>curl http://localhost:8081/
+[{"firstname":"Tom","lastname":"Hanks","address":{"city":"LA","state":"CA"}}]
+
+
+# need to do more in go test -cover with test case 
+

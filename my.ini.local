@@ -1,0 +1,21 @@
+# replayd.ini
+# possible values : production, development
+app_mode = production
+
+[paths]
+# Path to where replayd can store temp files, debug logs, sessions, and the sqlite3 db (if that is used)
+tmp_data = D:\Go-workspace\walter\replayd\tmp
+
+[server]
+# Protocol (http or https)
+protocol       = http
+# The http port  to use
+http_port      = 8081
+# Redirect to correct domain if host header does not match domain
+# Prevents DNS rebinding attacks
+enforce_domain = true
+
+[debug]
+# debug level (values = finest, fine, normal, none)
+debug_level = normal
+
