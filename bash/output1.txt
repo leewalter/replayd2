@@ -1,0 +1,21 @@
+https://coderpad.io/sandbox
+
+This is a live bash shell that everyone can modify.
+It's a sandbox that works exactly like a native shell.
+coderpad:~$
+
+Guest ran 71 lines of Bash (finished in 758ms):
+
+
+Walter Lee just did a POST test
+
+Post Postman Echo output is
+{"args":{},"data":"","files":{},"form":{"Walter testing Postman Echo post body.":""},"headers":{"x-forwarded-proto":"https","host":"postman-echo.com","content-length":"38","accept":"*/*","content-type":"application/x-www-form-urlencoded","user-agent":"curl/7.58.0","x-forwarded-port":"443"},"json":{"Walter testing Postman Echo post body.":""},"url":"https://postman-echo.com/post"}
+
+just did a GET test @Postman Echo
+
+Get Postman Echo is {"args":{"foo1":"bar1","foo2":"bar2"},"headers":{"x-forwarded-proto":"https","host":"postman-echo.com","accept":"*/*","user-agent":"curl/7.58.0","x-forwarded-port":"443"},"url":"https://postman-echo.com/get?foo1=bar1&foo2=bar2"}
+
+just did a GET test @WF
+
+GET WF host is al1-007a-ixp-ww
