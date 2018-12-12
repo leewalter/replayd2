@@ -16,6 +16,4 @@ just did a GET test @Postman Echo
 
 Get Postman Echo is {"args":{"foo1":"bar1","foo2":"bar2"},"headers":{"x-forwarded-proto":"https","host":"postman-echo.com","accept":"*/*","user-agent":"curl/7.58.0","x-forwarded-port":"443"},"url":"https://postman-echo.com/get?foo1=bar1&foo2=bar2"}
 
-just did a GET test @WF
 
-GET WF host is al1-007a-ixp-ww
