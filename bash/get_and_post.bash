@@ -58,14 +58,3 @@ fi
 status=0
 output=""
 
-# 3rd check more with WF hosts
-
-getURL "https://www.wellsfargo.com/its.txt"
-printf "\njust did a GET test @WF\n\n"
-
-if [ $status -eq 0 ]
-then
-  printf "GET WF host is $output \n"
-else
-  printf "curl GET failed ! error code is $status\n"
-fi 
