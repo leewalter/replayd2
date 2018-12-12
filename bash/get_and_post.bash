@@ -54,7 +54,4 @@ else
   printf "curl GET failed ! error code is $status\n"
 fi 
 
-#reset status = 0 and output = "" because they are global vars.
-status=0
-output=""
 
