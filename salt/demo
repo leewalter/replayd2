@@ -1,0 +1,69 @@
+try steps at https://github.com/GoogleCloudPlatform/compute-video-demo-salt
+but this is very old , so need a lot of changes and new steps.
+
+reviewed many salt files at /etc/salt, got an idea how salt works.
+
+root@salt:/etc/salt# ls -lrt
+total 176
+-rw-r--r-- 1 root root 28162 Oct  8 15:56 proxy
+-rw-r--r-- 1 root root 35984 Oct  8 15:56 minion
+-rw-r--r-- 1 root root 51532 Oct  8 15:56 master
+-rw-r--r-- 1 root root  2926 Oct  8 15:56 cloud.dpkg-dist
+drwxr-xr-x 2 root root  4096 Oct 26 13:42 proxy.d
+drwxr-xr-x 2 root root  4096 Oct 26 13:42 minion.d
+drwxr-xr-x 2 root root  4096 Oct 26 13:42 master.d
+drwxr-xr-x 2 root root  4096 Oct 26 13:42 cloud.providers.d
+drwxr-xr-x 2 root root  4096 Oct 26 13:42 cloud.profiles.d
+drwxr-xr-x 2 root root  4096 Oct 26 13:42 cloud.conf.d
+-rw-r--r-- 1 root root    41 Dec 13 04:44 minion_id
+-rw-r--r-- 1 root root    68 Dec 13 05:37 demo.map
+-rw------- 1 root root  2306 Dec 13 05:49 demo-salt.json
+-rw-r--r-- 1 root root   211 Dec 13 05:52 cloud
+drwxr-xr-x 4 root root  4096 Dec 13 06:02 pki
+-rw-r--r-- 1 root root   548 Dec 13 06:15 cloud.profiles.org
+-rw-r--r-- 1 root root   548 Dec 13 06:16 cloud.profiles
+drwxr-xr-x 2 root root  4096 Dec 13 06:23 cloud.deploy.d
+
+root@salt:/etc/salt# ps -ef | grep salt
+root     11257     1  0 04:44 ?        00:00:00 /usr/bin/python /usr/bin/salt-minion
+root     11260 11257  0 04:44 ?        00:00:02 /usr/bin/python /usr/bin/salt-minion
+root     11263 11260  0 04:44 ?        00:00:00 /usr/bin/python /usr/bin/salt-minion
+root     14393     1  0 06:02 ?        00:00:00 /usr/bin/python /usr/bin/salt-master
+root     14397 14393  0 06:02 ?        00:00:00 /usr/bin/python /usr/bin/salt-master
+root     14400 14393  0 06:02 ?        00:00:00 /usr/bin/python /usr/bin/salt-master
+root     14403 14393  0 06:02 ?        00:00:00 /usr/bin/python /usr/bin/salt-master
+root     14404 14393  0 06:02 ?        00:00:09 /usr/bin/python /usr/bin/salt-master
+root     14405 14393  0 06:02 ?        00:00:00 /usr/bin/python /usr/bin/salt-master
+root     14406 14405  0 06:02 ?        00:00:01 /usr/bin/python /usr/bin/salt-master
+root     14413 14405  0 06:02 ?        00:00:01 /usr/bin/python /usr/bin/salt-master
+root     14414 14405  0 06:02 ?        00:00:01 /usr/bin/python /usr/bin/salt-master
+root     14415 14405  0 06:02 ?        00:00:01 /usr/bin/python /usr/bin/salt-master
+root     14416 14405  0 06:02 ?        00:00:01 /usr/bin/python /usr/bin/salt-master
+root     14417 14393  0 06:02 ?        00:00:03 /usr/bin/python /usr/bin/salt-master
+root     14418 14405  0 06:02 ?        00:00:01 /usr/bin/python /usr/bin/salt-master
+root     16441 11957  0 06:42 pts/0    00:00:00 grep salt
+
+got to the point it has created 4 new VMs,
+
+happywalter@cloudshell:~ (salt-225402)$ gcloud compute instances list
+NAME      ZONE           MACHINE_TYPE   PREEMPTIBLE  INTERNAL_IP  EXTERNAL_IP      STATUS
+minion-1  us-central1-a  n1-standard-1               10.128.0.3   35.238.191.105   RUNNING
+minion-3  us-central1-a  n1-standard-1               10.128.0.5   35.188.156.224   RUNNING
+minion-2  us-central1-b  n1-standard-1               10.128.0.6   35.193.153.48    RUNNING
+minion-4  us-central1-b  n1-standard-1               10.128.0.4   104.154.183.146  RUNNING
+salt      us-central1-b  n1-standard-1               10.128.0.2   35.192.4.65      RUNNING
+
+...still need to do more on the latest error when try to deploy Apache2
+
+root@salt:/etc/salt# salt-cloud -P -y -m /etc/salt/demo.map
+[ERROR   ] Failed to deploy 'minion-1'. Error: Command 'ssh -t -t -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -oControlPath=none -oPasswordAuthentication=no -oChallengeResponseAuthentication=no -oPubkeyAuthentication=yes -oIdentitiesOnly=yes -oKbdInteractiveAuthentication=no -i /root/.ssh/google_compute_engine -p 22 saltuser@35.238.191.105 'sudo /tmp/.saltcloud-c668603e-8bfa-48e2-add7-cd24ca300ace/deploy.sh -c '"'"'/tmp/.saltcloud-c668603e-8bfa-48e2-add7-cd24ca300ace'"'"''' failed. Exit code: 1
+
+properly need to look at more pki keys, etc btw master and minion,
+
+root@salt:/etc/salt# salt '*' cmd.run "uname -a"
+minion-4:
+    Minion did not return. [No response]
+...
+
+
+ 	
