@@ -65,5 +65,67 @@ minion-4:
     Minion did not return. [No response]
 ...
 
+================================================================================
 
- 	
+some app. config files at /srv,
+
+root@salt:/srv# ls
+salt
+root@salt:/srv# ls -lR
+.:
+total 4
+drwxr-xr-x 3 root root 4096 Dec 13 05:37 salt
+
+./salt:
+total 8
+-rw-r--r-- 1 root root   35 Dec 13 05:37 top.sls
+drwxr-xr-x 2 root root 4096 Dec 13 05:37 webserver
+
+./salt/webserver:
+total 20
+-rw-r--r-- 1 root root 9908 Dec 13 05:37 apache2.conf
+-rw-r--r-- 1 root root 2401 Dec 13 05:37 index.html
+-rw-r--r-- 1 root root  676 Dec 13 05:37 init.sls
+
+root@salt:/srv/salt# cat top.sls 
+base:
+  'minion*':
+    - webserver
+root@salt:/srv/salt# 
+
+root@salt:/srv/salt/webserver# ls
+apache2.conf  index.html  init.sls
+root@salt:/srv/salt/webserver# cat init.sls 
+apache2:
+  pkg:
+    - installed
+  service:
+    - running
+    - watch:
+      - file: /etc/apache2/apache2.conf
+      - file: /etc/apache2/mods-enabled/headers.load
+
+/etc/apache2/mods-enabled/headers.load:
+  file.symlink:
+    - target: /etc/apache2/mods-available/headers.load
+    - require:
+      - pkg: apache2
+
+/etc/apache2/apache2.conf:
+  file.managed:
+    - source: salt://webserver/apache2.conf
+    - user: root
+    - group: root
+    - mode: 644
+    - require:
+      - pkg: apache2
+
+/var/www/index.html:
+  file.managed:
+    - source: salt://webserver/index.html
+    - user: root
+    - group: root
+    - mode: 644
+    - template: jinja
+    - require:
+      - pkg: apache2
