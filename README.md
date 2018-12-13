@@ -7,5 +7,11 @@ A simple web service written in golang<br/>
 4/ tested with -race flag<br/>
 5/ perf tests with go-wrk<br/>
 <br/>
+
 still need to test with -cover test cases<br/>
-still need to try more deployment tool, e.g. salt<br/>
+
+bash script at
+https://github.com/leewalter/replayd2/tree/master/bash
+
+salt demo at
+https://github.com/leewalter/replayd2/blob/master/salt/demo
