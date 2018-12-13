@@ -65,67 +65,73 @@ minion-4:
     Minion did not return. [No response]
 ...
 
-================================================================================
+troubleshoot more.
+ssh works fine, ssh keys correct, but the google repo /etc/salt/minion at worker is obsolete, so deploy.sh unable to start,
 
-some app. config files at /srv,
+checked errors with -D at minion-1,
 
-root@salt:/srv# ls
-salt
-root@salt:/srv# ls -lR
-.:
-total 4
-drwxr-xr-x 3 root root 4096 Dec 13 05:37 salt
+/tmp/.saltcloud-971a8e2a-d6f1-49b0-8ea4-f15feba29bf1/deploy.sh
+...
+2018-12-13 18:50:15,781 [salt.cli.daemons :298 ][INFO    ][13993] Setting up the Salt Minion "minion-1"
+2018-12-13 18:50:15,884 [salt.cli.daemons :85  ][INFO    ][13993] Starting up the Salt Minion
+2018-12-13 18:50:15,885 [salt.utils.event :1027][INFO    ][13993] Starting pull socket on /var/run/salt/minion/minion_event_08ccbf9282_pull.ipc
+2018-12-13 18:50:16,207 [salt.minion      :1114][INFO    ][13993] Creating minion process manager
+2018-12-13 18:50:16,237 [salt.minion      :564 ][ERROR   ][13993] Invalid keyword 'standard' for variable 'master_type'
 
-./salt:
-total 8
--rw-r--r-- 1 root root   35 Dec 13 05:37 top.sls
-drwxr-xr-x 2 root root 4096 Dec 13 05:37 webserver
+then checked latest Salt doc
 
-./salt/webserver:
-total 20
--rw-r--r-- 1 root root 9908 Dec 13 05:37 apache2.conf
--rw-r--r-- 1 root root 2401 Dec 13 05:37 index.html
--rw-r--r-- 1 root root  676 Dec 13 05:37 init.sls
+2018-12-13 18:50:15,781 [salt.cli.daemons :298 ][INFO    ][13993] Setting up the Salt Minion "minion-1"
+2018-12-13 18:50:15,884 [salt.cli.daemons :85  ][INFO    ][13993] Starting up the Salt Minion
+2018-12-13 18:50:15,885 [salt.utils.event :1027][INFO    ][13993] Starting pull socket on /var/run/salt/minion/minion_event_08ccbf9282_pull.ipc
+2018-12-13 18:50:16,207 [salt.minion      :1114][INFO    ][13993] Creating minion process manager
+2018-12-13 18:50:16,237 [salt.minion      :564 ][ERROR   ][13993] Invalid keyword 'standard' for variable 'master_type'
 
-root@salt:/srv/salt# cat top.sls 
-base:
-  'minion*':
-    - webserver
-root@salt:/srv/salt# 
+then fix the new master_type
 
-root@salt:/srv/salt/webserver# ls
-apache2.conf  index.html  init.sls
-root@salt:/srv/salt/webserver# cat init.sls 
-apache2:
-  pkg:
-    - installed
-  service:
-    - running
-    - watch:
-      - file: /etc/apache2/apache2.conf
-      - file: /etc/apache2/mods-enabled/headers.load
+https://docs.saltstack.com/en/latest/ref/configuration/minion.html#master-type
 
-/etc/apache2/mods-enabled/headers.load:
-  file.symlink:
-    - target: /etc/apache2/mods-available/headers.load
-    - require:
-      - pkg: apache2
+MASTER_TYPE
+New in version 2014.7.0.
 
-/etc/apache2/apache2.conf:
-  file.managed:
-    - source: salt://webserver/apache2.conf
-    - user: root
-    - group: root
-    - mode: 644
-    - require:
-      - pkg: apache2
+Default: str *** they changed from standard to str !!! ***
 
-/var/www/index.html:
-  file.managed:
-    - source: salt://webserver/index.html
-    - user: root
-    - group: root
-    - mode: 644
-    - template: jinja
-    - require:
-      - pkg: apache2
+The type of the master variable. Can be str, failover, func or disable.
+
+root@minion-1:/tmp/.saltcloud-c668603e-8bfa-48e2-add7-cd24ca300ace# diff /etc/salt/minion /etc/salt/minion.orig
+10c10
+< master_type: str
+---
+> master_type: standard
+
+then rerun deploy
+
+root@minion-1:/tmp/.saltcloud-c668603e-8bfa-48e2-add7-cd24ca300ace# ./deploy.sh -D
+...
+finally up and running now,
+Reading package lists...
+ *  INFO: Running install_debian_9_stable()
+ * DEBUG: Checking if apt process is currently running.
+ * DEBUG: No apt processes are currently running.
+Reading package lists...
+Building dependency tree...
+Reading state information...
+salt-minion is already the newest version (2018.3.3+ds-2).
+0 upgraded, 0 newly installed, 0 to remove and 1 not upgraded.
+ *  INFO: Running install_debian_check_services()
+ * DEBUG: Checking if service salt-minion is enabled
+ * DEBUG: Service salt-minion is enabled
+ *  INFO: Running install_debian_restart_daemons()
+ * DEBUG: Waiting 3 seconds for processes to settle before checking for them
+ *  INFO: Running daemons_running()
+ * DEBUG: Waiting 3 seconds for processes to settle before checking for them
+ *  INFO: Salt installed!
+ * DEBUG: Removing the logging pipe /tmp/bootstrap-salt.logpipe
+root@minion-1:/tmp/.saltcloud-c668603e-8bfa-48e2-add7-cd24ca300ace# 
+
+root@minion-1:/tmp/.saltcloud-c668603e-8bfa-48e2-add7-cd24ca300ace# ps -ef | grep minion
+root     15480     1  0 18:56 ?        00:00:00 /usr/bin/python /usr/bin/salt-minion
+root     15483 15480  1 18:56 ?        00:00:00 /usr/bin/python /usr/bin/salt-minion
+root     15486 15483  0 18:56 ?        00:00:00 /usr/bin/python /usr/bin/salt-minion
+root     15536 11118  0 18:56 pts/0    00:00:00 grep minion
+
+
